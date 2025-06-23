@@ -17,10 +17,11 @@ A Python-based application that intelligently extracts, processes, and schedules
 ## 🚀 Features
 
 - 📷 Convert timetable images to structured data using OCR
+- 💾 **Save and load** processed timetables for future use
 - 🔁 Schedule reminders for classes or events
 - 🔊 Text-to-speech alerts via `pyttsx3`
 - 🧠 Python-based logic for parsing and organizing data
-- 🗂 Export processed timetable images
+- 🗂 Export processed timetable images for sharing or storage
 
 ---
 
@@ -58,10 +59,16 @@ Edit
 sudo apt-get install tesseract-ocr
 Optionally, use a GUI tool like gimagereader or test with tesseract image.png stdout to validate installation.
 
+💾 Save and Load Timetables
+📥 Save: After processing a timetable, save it to a local file (e.g., JSON or CSV).
+
+📤 Load: Reuse previously saved timetables without needing to reprocess images.
+
+This feature helps avoid repeating OCR on the same data and allows persistent access to timetables.
+
 🧪 Known Issues & Improvements
 ✖️ OCR struggles with complex fonts or skewed images
 
 ⌛ Time parsing might fail for very irregular formats
 
 💡 Working on improving OCR layout understanding with PaddleOCR
-
