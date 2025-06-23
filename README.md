@@ -47,26 +47,27 @@ A Python-based application that intelligently extracts, processes, and schedules
 ```bash
 git clone https://github.com/arthavgonda/TimeTableScheduler.git
 cd TimeTableScheduler
-2. Install Python dependencies
-bash
-Copy
-Edit
+```
+### 2. Install Python dependencies
+
+```bash
 pip install opencv-python numpy plyer pyttsx3 schedule pandas pillow paddlepaddle paddleocr
-3. Install Tesseract OCR (for Ubuntu)
-bash
-Copy
-Edit
+```
+
+### 3. Install Tesseract OCR (for Ubuntu)
+```bash
 sudo apt-get install tesseract-ocr
 Optionally, use a GUI tool like gimagereader or test with tesseract image.png stdout to validate installation.
+```
 
-💾 Save and Load Timetables
+### 💾 Save and Load Timetables
 📥 Save: After processing a timetable, save it to a local file (e.g., JSON or CSV).
 
 📤 Load: Reuse previously saved timetables without needing to reprocess images.
 
 This feature helps avoid repeating OCR on the same data and allows persistent access to timetables.
 
-🧪 Known Issues & Improvements
+### 🧪 Known Issues & Improvements
 ✖️ OCR struggles with complex fonts or skewed images
 
 ⌛ Time parsing might fail for very irregular formats
