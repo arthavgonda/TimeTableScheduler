@@ -56,6 +56,10 @@ class TimetableReminder:
         self.root.title("Smart Timetable Reminder - AI Enhanced")
         self.root.geometry("1200x800")
         self.root.configure(bg='#f0f0f0')
+        
+        # Set custom icon
+        self.set_app_icon()
+        
         self.style = ttk.Style()
         self.style.theme_use('clam')
         self.tts_engine = None
@@ -69,9 +73,415 @@ class TimetableReminder:
         self.ocr_engine = None
         self.upsampler = None
         self.current_day = datetime.now().strftime('%A')
+        
+        # Setup persistent storage
+        self.setup_persistent_storage()
         self.check_notification_system()
+        
+        # Setup auto-start on first run
+        self.setup_autostart()
+        
         self.setup_gui()
+        
+        # Auto-load previous timetable data
+        self.auto_load_schedule()
+        
+        # Setup auto-save on window close
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        
+        # Ensure dock icon is properly set up
+        self.root.after(2000, self.ensure_dock_integration)
+        
         threading.Thread(target=self.initialize_models, daemon=True).start()
+    
+    def ensure_dock_integration(self):
+        """Ensure proper dock integration after app is fully loaded"""
+        try:
+            # Set window manager hints for better dock integration
+            self.root.wm_class("TimetableReminder", "TimetableReminder")
+            
+            # Update desktop files if needed to fix icon paths
+            if hasattr(self, 'icon_file_path') and self.icon_file_path:
+                self.update_desktop_files()
+                
+        except Exception as e:
+            print(f"⚠️  Dock integration setup: {e}")
+    
+    def update_desktop_files(self):
+        """Update existing desktop files with correct icon paths"""
+        try:
+            desktop_files = [
+                os.path.expanduser("~/.config/autostart/TimetableReminder.desktop"),
+                os.path.expanduser("~/.local/share/applications/TimetableReminder.desktop")
+            ]
+            
+            for desktop_file in desktop_files:
+                if os.path.exists(desktop_file):
+                    # Read current content
+                    with open(desktop_file, 'r') as f:
+                        content = f.read()
+                    
+                    # Update icon line if using system icon path
+                    system_icon_path = os.path.expanduser("~/.local/share/pixmaps/timetable-reminder.png")
+                    if os.path.exists(system_icon_path):
+                        # Replace icon line
+                        lines = content.split('\n')
+                        for i, line in enumerate(lines):
+                            if line.startswith('Icon='):
+                                lines[i] = f"Icon=timetable-reminder"
+                                break
+                        
+                        # Write back
+                        with open(desktop_file, 'w') as f:
+                            f.write('\n'.join(lines))
+                        
+                        print(f"✅ Updated desktop file: {desktop_file}")
+                        
+        except Exception as e:
+            print(f"⚠️  Could not update desktop files: {e}")
+    
+    def set_app_icon(self):
+        """Set custom app icon from ttApp.png"""
+        try:
+            # Get the directory where the script is located
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            icon_path = os.path.join(script_dir, "ttApp.png")
+            
+            if os.path.exists(icon_path):
+                # Load and set the icon
+                icon_image = Image.open(icon_path)
+                # Create multiple sizes for better dock/taskbar display
+                icon_sizes = [(16, 16), (32, 32), (48, 48), (64, 64), (128, 128)]
+                self.app_icons = []
+                
+                for size in icon_sizes:
+                    resized_icon = icon_image.resize(size, Image.Resampling.LANCZOS)
+                    tk_icon = ImageTk.PhotoImage(resized_icon)
+                    self.app_icons.append(tk_icon)
+                
+                # Set the main icon (largest one for best quality)
+                self.app_icon = self.app_icons[-1]  # 128x128
+                self.root.iconphoto(True, *self.app_icons)  # All sizes for best compatibility
+                
+                # Also set as window manager class for better dock integration
+                self.root.wm_class("TimetableReminder", "TimetableReminder")
+                
+                # Store icon path for desktop file creation
+                self.icon_file_path = icon_path
+                
+                print(f"✅ Custom icon loaded from: {icon_path}")
+            else:
+                print(f"⚠️  Icon file not found at: {icon_path}")
+                print("Place 'ttApp.png' in the same directory as this script")
+                # Fallback to default icon
+                self.create_default_icon()
+        except Exception as e:
+            print(f"⚠️  Error loading custom icon: {e}")
+            self.create_default_icon()
+    
+    def create_default_icon(self):
+        """Create a simple default icon if custom icon fails"""
+        try:
+            # Create a simple colored icon as fallback
+            icon_img = Image.new('RGB', (64, 64), color='#e74c3c')
+            self.app_icon = ImageTk.PhotoImage(icon_img)
+            self.root.iconphoto(True, self.app_icon)
+            self.root.wm_class("TimetableReminder", "TimetableReminder")
+            self.icon_file_path = None
+        except:
+            self.icon_file_path = None
+    
+    def setup_autostart(self):
+        """Setup auto-start functionality for Ubuntu"""
+        try:
+            # Check if we're on a Linux system
+            if platform.system() != 'Linux':
+                print("⚠️  Auto-start setup is designed for Ubuntu/Linux systems")
+                return
+            
+            # Get the current script path
+            script_path = os.path.abspath(__file__)
+            script_name = os.path.basename(__file__)
+            app_name = "TimetableReminder"
+            
+            # Create autostart directory if it doesn't exist
+            autostart_dir = os.path.expanduser("~/.config/autostart")
+            os.makedirs(autostart_dir, exist_ok=True)
+            
+            # Desktop entry file path
+            desktop_file = os.path.join(autostart_dir, f"{app_name}.desktop")
+            
+            # Check if autostart is already configured
+            if os.path.exists(desktop_file):
+                print("✅ Auto-start already configured")
+                # Still try to install icon for dock integration
+                if hasattr(self, 'icon_file_path') and self.icon_file_path and os.path.exists(self.icon_file_path):
+                    self.install_icon_to_system()
+                return
+            
+            # Install icon to system first for proper dock integration
+            if hasattr(self, 'icon_file_path') and self.icon_file_path and os.path.exists(self.icon_file_path):
+                self.install_icon_to_system()
+            
+            # Determine icon path - prefer system installed icon
+            icon_name = "timetable-reminder"  # Standard name for system icon
+            
+            # Create desktop entry for autostart with proper dock integration
+            desktop_content = f"""[Desktop Entry]
+Type=Application
+Name=Timetable Reminder
+GenericName=AI-Enhanced Timetable Reminder
+Comment=Smart Timetable Reminder with AI-powered OCR and voice alerts
+Exec=python3 "{script_path}"
+Icon={icon_name}
+Terminal=false
+NoDisplay=false
+StartupNotify=true
+Categories=Utility;Office;Education;Calendar;
+Keywords=timetable;reminder;schedule;calendar;AI;OCR;
+StartupWMClass=TimetableReminder
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=5
+Hidden=false
+MimeType=text/csv;application/vnd.ms-excel;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;
+"""
+            
+            # Write the desktop file
+            with open(desktop_file, 'w') as f:
+                f.write(desktop_content)
+            
+            # Make it executable
+            os.chmod(desktop_file, 0o755)
+            
+            print(f"✅ Auto-start configured! App will start automatically on boot")
+            print(f"Desktop file created: {desktop_file}")
+            
+            # Also create a .desktop file for applications menu with same content
+            apps_dir = os.path.expanduser("~/.local/share/applications")
+            os.makedirs(apps_dir, exist_ok=True)
+            apps_desktop_file = os.path.join(apps_dir, f"{app_name}.desktop")
+            
+            with open(apps_desktop_file, 'w') as f:
+                f.write(desktop_content)
+            os.chmod(apps_desktop_file, 0o755)
+            
+            print(f"✅ Application menu entry created: {apps_desktop_file}")
+            
+        except Exception as e:
+            print(f"⚠️  Could not setup auto-start: {e}")
+            print("You can manually add this app to startup applications in System Settings")
+    
+    def install_icon_to_system(self):
+        """Install icon to system directories for better dock integration"""
+        try:
+            if not hasattr(self, 'icon_file_path') or not self.icon_file_path:
+                return
+                
+            # Standard icon directories
+            icon_dirs = [
+                os.path.expanduser("~/.local/share/icons/hicolor/48x48/apps/"),
+                os.path.expanduser("~/.local/share/icons/hicolor/64x64/apps/"),
+                os.path.expanduser("~/.local/share/icons/hicolor/128x128/apps/"),
+                os.path.expanduser("~/.local/share/pixmaps/")
+            ]
+            
+            # Create directories and copy icon
+            for icon_dir in icon_dirs:
+                try:
+                    os.makedirs(icon_dir, exist_ok=True)
+                    import shutil
+                    
+                    if "48x48" in icon_dir:
+                        # Create 48x48 version
+                        icon_img = Image.open(self.icon_file_path)
+                        icon_img = icon_img.resize((48, 48), Image.Resampling.LANCZOS)
+                        target_path = os.path.join(icon_dir, "timetable-reminder.png")
+                        icon_img.save(target_path)
+                    elif "64x64" in icon_dir:
+                        # Create 64x64 version
+                        icon_img = Image.open(self.icon_file_path)
+                        icon_img = icon_img.resize((64, 64), Image.Resampling.LANCZOS)
+                        target_path = os.path.join(icon_dir, "timetable-reminder.png")
+                        icon_img.save(target_path)
+                    elif "128x128" in icon_dir:
+                        # Create 128x128 version
+                        icon_img = Image.open(self.icon_file_path)
+                        icon_img = icon_img.resize((128, 128), Image.Resampling.LANCZOS)
+                        target_path = os.path.join(icon_dir, "timetable-reminder.png")
+                        icon_img.save(target_path)
+                    else:
+                        # Copy original to pixmaps
+                        target_path = os.path.join(icon_dir, "timetable-reminder.png")
+                        shutil.copy2(self.icon_file_path, target_path)
+                    
+                    print(f"✅ Icon installed to: {target_path}")
+                except Exception as e:
+                    print(f"⚠️  Could not install icon to {icon_dir}: {e}")
+            
+            # Update icon cache
+            try:
+                subprocess.run(['gtk-update-icon-cache', '-f', '-t', 
+                               os.path.expanduser("~/.local/share/icons/hicolor/")], 
+                              capture_output=True)
+                print("✅ Icon cache updated")
+            except:
+                pass
+                
+        except Exception as e:
+            print(f"⚠️  Error installing system icon: {e}")
+    
+    def setup_persistent_storage(self):
+        """Setup persistent storage for timetable data"""
+        try:
+            # Create config directory if it doesn't exist
+            self.config_dir = os.path.expanduser("~/.config/timetable_reminder")
+            os.makedirs(self.config_dir, exist_ok=True)
+            
+            # Define paths for persistent storage
+            self.auto_save_file = os.path.join(self.config_dir, "timetable_data.json")
+            self.settings_file = os.path.join(self.config_dir, "app_settings.json")
+            self.backup_file = os.path.join(self.config_dir, "timetable_backup.json")
+            
+            print(f"✅ Persistent storage setup at: {self.config_dir}")
+            
+        except Exception as e:
+            print(f"⚠️  Could not setup persistent storage: {e}")
+            # Fallback to current directory
+            self.auto_save_file = "timetable_data.json"
+            self.settings_file = "app_settings.json"
+            self.backup_file = "timetable_backup.json"
+    
+    def auto_save_schedule(self):
+        """Automatically save schedule data whenever it changes"""
+        try:
+            if self.schedule_data:
+                # Create backup before saving
+                if os.path.exists(self.auto_save_file):
+                    import shutil
+                    shutil.copy2(self.auto_save_file, self.backup_file)
+                
+                # Save current data
+                save_data = {
+                    'schedule_data': self.schedule_data,
+                    'tts_enabled': self.tts_enabled.get(),
+                    'last_saved': datetime.now().isoformat(),
+                    'version': '2.0'
+                }
+                
+                with open(self.auto_save_file, 'w') as f:
+                    json.dump(save_data, f, indent=2)
+                
+                print(f"🔄 Auto-saved timetable data")
+                
+                # Update status to show auto-save
+                try:
+                    current_status = self.status_label.cget('text')
+                    if not current_status.endswith('💾'):
+                        self.root.after(0, lambda: self.status_label.config(
+                            text=current_status + " 💾"))
+                        # Remove the save indicator after 2 seconds
+                        self.root.after(2000, self.remove_save_indicator)
+                except:
+                    pass
+                
+        except Exception as e:
+            print(f"⚠️  Auto-save failed: {e}")
+    
+    def remove_save_indicator(self):
+        """Remove the save indicator from status"""
+        try:
+            current_status = self.status_label.cget('text')
+            if current_status.endswith(' 💾'):
+                self.status_label.config(text=current_status[:-2])
+        except:
+            pass
+    
+    def auto_load_schedule(self):
+        """Automatically load schedule data on startup"""
+        try:
+            if os.path.exists(self.auto_save_file):
+                with open(self.auto_save_file, 'r') as f:
+                    save_data = json.load(f)
+                
+                # Load schedule data
+                if 'schedule_data' in save_data:
+                    self.schedule_data = save_data['schedule_data']
+                    
+                    # Load settings
+                    if 'tts_enabled' in save_data:
+                        self.tts_enabled.set(save_data['tts_enabled'])
+                    
+                    # Display loaded schedule
+                    self.display_schedule()
+                    
+                    # Enable controls if data exists
+                    if self.schedule_data and any(self.schedule_data.values()):
+                        self.root.after(1000, self.enable_controls_after_load)
+                    
+                    last_saved = save_data.get('last_saved', 'Unknown')
+                    total_tasks = sum(len(tasks) for tasks in self.schedule_data.values())
+                    
+                    print(f"✅ Auto-loaded {total_tasks} tasks from previous session")
+                    self.root.after(2000, lambda: self.status_label.config(
+                        text=f"✅ Loaded {total_tasks} tasks from previous session"))
+                    
+                    return True
+                    
+        except Exception as e:
+            print(f"⚠️  Auto-load failed: {e}")
+            # Try to load from backup
+            try:
+                if os.path.exists(self.backup_file):
+                    with open(self.backup_file, 'r') as f:
+                        backup_data = json.load(f)
+                    if 'schedule_data' in backup_data:
+                        self.schedule_data = backup_data['schedule_data']
+                        self.display_schedule()
+                        print("✅ Restored from backup file")
+                        self.root.after(2000, lambda: self.status_label.config(
+                            text="✅ Restored schedule from backup"))
+                        return True
+            except:
+                pass
+        
+        return False
+    
+    def enable_controls_after_load(self):
+        """Enable controls after successful auto-load"""
+        self.start_btn.config(state=tk.NORMAL)
+        self.save_btn.config(state=tk.NORMAL)
+    
+    def on_closing(self):
+        """Handle application closing - save data and cleanup"""
+        try:
+            # Auto-save current data
+            self.auto_save_schedule()
+            
+            # Stop reminders gracefully
+            if self.reminders_active:
+                self.stop_reminders()
+            
+            print("✅ Application closed gracefully - data saved")
+            
+        except Exception as e:
+            print(f"⚠️  Error during shutdown: {e}")
+        finally:
+            self.root.destroy()
+    
+    def remove_autostart(self):
+        """Remove auto-start functionality (useful for uninstall)"""
+        try:
+            autostart_file = os.path.expanduser("~/.config/autostart/TimetableReminder.desktop")
+            apps_file = os.path.expanduser("~/.local/share/applications/TimetableReminder.desktop")
+            
+            for file_path in [autostart_file, apps_file]:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    print(f"✅ Removed: {file_path}")
+            
+            print("✅ Auto-start removed successfully")
+        except Exception as e:
+            print(f"⚠️  Error removing auto-start: {e}")
     
     def check_notification_system(self):
         try:
@@ -267,7 +677,8 @@ class TimetableReminder:
         voice_frame.pack(pady=10, padx=10, fill=tk.X)
         tk.Checkbutton(voice_frame, text="🔊 Enable Voice Alerts", 
                       variable=self.tts_enabled, bg='white',
-                      font=('Arial', 11), cursor='hand2').pack(pady=5)
+                      font=('Arial', 11), cursor='hand2',
+                      command=self.on_tts_setting_change).pack(pady=5)
         tk.Label(voice_frame, text=f"Using: {self.tts_method}", 
                 bg='white', font=('Arial', 9), fg='#666').pack()
         self.start_btn = tk.Button(control_tab, text="▶️ Start Reminders", 
@@ -294,6 +705,27 @@ class TimetableReminder:
         tk.Button(save_load_frame, text="📂 Load", 
                  command=self.load_schedule, bg='#16a085', fg='white',
                  font=('Arial', 10), padx=15, pady=5, cursor='hand2').pack(side=tk.LEFT, padx=3)
+        
+        # Add auto-start controls
+        autostart_frame = tk.LabelFrame(control_tab, text="Auto-Start Settings", bg='white',
+                                       font=('Arial', 10, 'bold'))
+        autostart_frame.pack(pady=10, padx=10, fill=tk.X)
+        
+        autostart_status = "✅ Enabled" if os.path.exists(os.path.expanduser("~/.config/autostart/TimetableReminder.desktop")) else "❌ Disabled"
+        tk.Label(autostart_frame, text=f"Auto-start on boot: {autostart_status}", 
+                bg='white', font=('Arial', 9)).pack(pady=2)
+        
+        autostart_btn_frame = tk.Frame(autostart_frame, bg='white')
+        autostart_btn_frame.pack(pady=5)
+        
+        tk.Button(autostart_btn_frame, text="🚀 Enable Auto-start", 
+                 command=self.setup_autostart, bg='#27ae60', fg='white',
+                 font=('Arial', 9), padx=10, pady=3, cursor='hand2').pack(side=tk.LEFT, padx=2)
+        
+        tk.Button(autostart_btn_frame, text="🛑 Disable Auto-start", 
+                 command=self.remove_autostart, bg='#e74c3c', fg='white',
+                 font=('Arial', 9), padx=10, pady=3, cursor='hand2').pack(side=tk.LEFT, padx=2)
+        
         status_frame = tk.Frame(left_panel, bg='#ecf0f1', padx=20, pady=15)
         status_frame.pack(fill=tk.X, side=tk.BOTTOM)
         self.status_label = tk.Label(status_frame, text="⏳ Ready to input timetable", 
@@ -339,6 +771,14 @@ class TimetableReminder:
         self.schedule_text.insert(tk.END, "🔊 Voice System:\n", "day")
         self.schedule_text.insert(tk.END, f"• Using {self.tts_method} for voice alerts\n", "task")
         self.schedule_text.insert(tk.END, "• Multiple notification methods for Ubuntu\n\n", "task")
+        self.schedule_text.insert(tk.END, "🚀 Auto-Start & Persistence:\n", "day")
+        self.schedule_text.insert(tk.END, "• App starts automatically on boot\n", "task")
+        self.schedule_text.insert(tk.END, "• Timetable data auto-saves and persists\n", "task")
+        self.schedule_text.insert(tk.END, "• Custom icon support (ttApp.png)\n\n", "task")
+        self.schedule_text.insert(tk.END, "💾 Data Storage:\n", "day")
+        self.schedule_text.insert(tk.END, "• Auto-saves after every change\n", "task")
+        self.schedule_text.insert(tk.END, "• Auto-loads on app startup\n", "task")
+        self.schedule_text.insert(tk.END, "• No need to manually save/load\n\n", "task")
         self.schedule_text.insert(tk.END, "Choose an input method:\n\n", "day")
         self.schedule_text.insert(tk.END, "1. ✏️ Manual Entry\n", "task")
         self.schedule_text.insert(tk.END, "   Easy grid interface for quick entry\n\n", "task")
@@ -526,6 +966,9 @@ class TimetableReminder:
         self.display_schedule()
         total_tasks = sum(len(tasks) for tasks in self.schedule_data.values())
         if total_tasks > 0:
+            # Auto-save the extracted data
+            self.auto_save_schedule()
+            
             self.status_label.config(text=f"✅ Extracted {total_tasks} tasks! Review and edit as needed.")
             self.start_btn.config(state=tk.NORMAL)
             self.save_btn.config(state=tk.NORMAL)
@@ -600,6 +1043,8 @@ class TimetableReminder:
                      bg='#27ae60', fg='white').grid(row=0, column=4, padx=5)
         def save_edits():
             self.display_schedule()
+            # Auto-save after editing
+            self.auto_save_schedule()
             edit_window.destroy()
         tk.Button(edit_window, text="💾 Save Changes", command=save_edits,
                  bg='#3498db', fg='white', font=('Arial', 11),
@@ -688,6 +1133,9 @@ class TimetableReminder:
                                 })
             self.display_schedule()
             if any(self.schedule_data.values()):
+                # Auto-save the manually entered data
+                self.auto_save_schedule()
+                
                 self.status_label.config(text="✅ Schedule entered successfully!")
                 self.start_btn.config(state=tk.NORMAL)
                 self.save_btn.config(state=tk.NORMAL)
@@ -740,6 +1188,9 @@ class TimetableReminder:
                                         })
                 self.display_schedule()
                 if any(self.schedule_data.values()):
+                    # Auto-save the imported data
+                    self.auto_save_schedule()
+                    
                     total_tasks = sum(len(tasks) for tasks in self.schedule_data.values())
                     self.status_label.config(text=f"✅ Imported {total_tasks} tasks successfully!")
                     self.start_btn.config(state=tk.NORMAL)
@@ -960,6 +1411,22 @@ class TimetableReminder:
     
     def get_icon_path(self):
         try:
+            # First try to use our custom system-installed icon
+            system_icon_paths = [
+                os.path.expanduser("~/.local/share/pixmaps/timetable-reminder.png"),
+                os.path.expanduser("~/.local/share/icons/hicolor/64x64/apps/timetable-reminder.png"),
+                os.path.expanduser("~/.local/share/icons/hicolor/48x48/apps/timetable-reminder.png")
+            ]
+            
+            for path in system_icon_paths:
+                if os.path.exists(path):
+                    return path
+            
+            # Then try our local custom icon
+            if hasattr(self, 'icon_file_path') and self.icon_file_path and os.path.exists(self.icon_file_path):
+                return self.icon_file_path
+            
+            # Fallback to system icons
             icon_paths = [
                 '/usr/share/icons/gnome/48x48/apps/calendar.png',
                 '/usr/share/icons/hicolor/48x48/apps/calendar.png',
@@ -985,6 +1452,13 @@ class TimetableReminder:
             x = (reminder_window.winfo_screenwidth() // 2) - 200
             y = (reminder_window.winfo_screenheight() // 2) - 125
             reminder_window.geometry(f"+{x}+{y}")
+            
+            # Set icon for popup window too
+            try:
+                reminder_window.iconphoto(True, self.app_icon)
+            except:
+                pass
+            
             self.flash_window(reminder_window)
             header_frame = tk.Frame(reminder_window, bg='#c0392b', height=60)
             header_frame.pack(fill=tk.X)
@@ -1106,6 +1580,9 @@ class TimetableReminder:
                     self.schedule_data = json.load(f)
                 self.display_schedule()
                 if self.schedule_data and any(self.schedule_data.values()):
+                    # Auto-save the loaded data as the new persistent data
+                    self.auto_save_schedule()
+                    
                     self.start_btn.config(state=tk.NORMAL)
                     self.save_btn.config(state=tk.NORMAL)
                     self.status_label.config(text="✅ Schedule loaded successfully!")
@@ -1114,6 +1591,10 @@ class TimetableReminder:
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to load schedule: {str(e)}")
                 self.status_label.config(text="❌ Error loading schedule")
+    
+    def on_tts_setting_change(self):
+        """Auto-save when TTS settings change"""
+        self.auto_save_schedule()
     
     def run_scheduler(self):
         while self.reminders_active:
