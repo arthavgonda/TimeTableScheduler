@@ -1,0 +1,520 @@
+{
+    "Monday": [
+        {
+            "time": "06:00",
+            "task": "Morning Exercise"
+        },
+        {
+            "time": "07:00",
+            "task": "Breakfast"
+        },
+        {
+            "time": "08:00",
+            "task": "Python"
+        },
+        {
+            "time": "09:00",
+            "task": "DSA"
+        },
+        {
+            "time": "10:00",
+            "task": "DSA"
+        },
+        {
+            "time": "11:00",
+            "task": "CDS Mathematics"
+        },
+        {
+            "time": "12:00",
+            "task": "CDS Mathematics"
+        },
+        {
+            "time": "13:00",
+            "task": "Lunch"
+        },
+        {
+            "time": "14:00",
+            "task": "C++"
+        },
+        {
+            "time": "15:00",
+            "task": "C++"
+        },
+        {
+            "time": "16:00",
+            "task": "C++"
+        },
+        {
+            "time": "17:00",
+            "task": "CDS GK"
+        },
+        {
+            "time": "18:00",
+            "task": "CDS GK"
+        },
+        {
+            "time": "19:00",
+            "task": "Python"
+        },
+        {
+            "time": "20:00",
+            "task": "Python"
+        },
+        {
+            "time": "21:00",
+            "task": "LeetCode"
+        },
+        {
+            "time": "22:00",
+            "task": "LeetCode"
+        },
+        {
+            "time": "23:00",
+            "task": "PowerOff"
+        }
+    ],
+    "Tuesday": [
+        {
+            "time": "06:00",
+            "task": "Morning Exercise"
+        },
+        {
+            "time": "07:00",
+            "task": "Breakfast"
+        },
+        {
+            "time": "08:00",
+            "task": "C++"
+        },
+        {
+            "time": "09:00",
+            "task": "C++"
+        },
+        {
+            "time": "10:00",
+            "task": "DBMS"
+        },
+        {
+            "time": "11:00",
+            "task": "DBMS"
+        },
+        {
+            "time": "12:00",
+            "task": "CDS English"
+        },
+        {
+            "time": "13:00",
+            "task": "Lunch"
+        },
+        {
+            "time": "14:00",
+            "task": "DBMS Advanced"
+        },
+        {
+            "time": "15:00",
+            "task": "DBMS Advanced"
+        },
+        {
+            "time": "16:00",
+            "task": "DBMS Advanced"
+        },
+        {
+            "time": "17:00",
+            "task": "CDS Current Affairs"
+        },
+        {
+            "time": "18:00",
+            "task": "CDS Current Affairs"
+        },
+        {
+            "time": "19:00",
+            "task": "Computer Networks"
+        },
+        {
+            "time": "20:00",
+            "task": "Computer Networks"
+        },
+        {
+            "time": "21:00",
+            "task": "LeetCode"
+        },
+        {
+            "time": "22:00",
+            "task": "LeetCode"
+        },
+        {
+            "time": "23:00",
+            "task": "PowerOff"
+        }
+    ],
+    "Wednesday": [
+        {
+            "time": "06:00",
+            "task": "Morning Exercise"
+        },
+        {
+            "time": "07:00",
+            "task": "Breakfast"
+        },
+        {
+            "time": "08:00",
+            "task": "Operating System Revision"
+        },
+        {
+            "time": "09:00",
+            "task": "Operating System"
+        },
+        {
+            "time": "10:00",
+            "task": "Operating System"
+        },
+        {
+            "time": "11:00",
+            "task": "CDS Mathematics"
+        },
+        {
+            "time": "12:00",
+            "task": "CDS Mathematics"
+        },
+        {
+            "time": "13:00",
+            "task": "Lunch"
+        },
+        {
+            "time": "14:00",
+            "task": "Computer Networks Revision"
+        },
+        {
+            "time": "15:00",
+            "task": "Computer Network"
+        },
+        {
+            "time": "16:00",
+            "task": "Computer Network"
+        },
+        {
+            "time": "17:00",
+            "task": "CDS Geography"
+        },
+        {
+            "time": "18:00",
+            "task": "CDS Geography"
+        },
+        {
+            "time": "19:00",
+            "task": "Python practice"
+        },
+        {
+            "time": "20:00",
+            "task": "C++ Practice"
+        },
+        {
+            "time": "21:00",
+            "task": "LeetCode"
+        },
+        {
+            "time": "22:00",
+            "task": "LeetCode"
+        },
+        {
+            "time": "23:00",
+            "task": "PowerOff"
+        }
+    ],
+    "Thursday": [
+        {
+            "time": "06:00",
+            "task": "Morning Exercise"
+        },
+        {
+            "time": "07:00",
+            "task": "Breakfast"
+        },
+        {
+            "time": "08:00",
+            "task": "Advanced DSA"
+        },
+        {
+            "time": "09:00",
+            "task": "Project Building"
+        },
+        {
+            "time": "10:00",
+            "task": "Project Building"
+        },
+        {
+            "time": "11:00",
+            "task": "CDS GK"
+        },
+        {
+            "time": "12:00",
+            "task": "CDS GK"
+        },
+        {
+            "time": "13:00",
+            "task": "Lunch"
+        },
+        {
+            "time": "14:00",
+            "task": "DSA practice"
+        },
+        {
+            "time": "15:00",
+            "task": "DSA Practice"
+        },
+        {
+            "time": "16:00",
+            "task": "CDS mock"
+        },
+        {
+            "time": "17:00",
+            "task": "CDS mock"
+        },
+        {
+            "time": "18:00",
+            "task": "Competitive Math"
+        },
+        {
+            "time": "19:00",
+            "task": "Competitive Math"
+        },
+        {
+            "time": "20:00",
+            "task": "Tricks and Tips"
+        },
+        {
+            "time": "21:00",
+            "task": "LeetCode"
+        },
+        {
+            "time": "22:00",
+            "task": "LeetCode"
+        },
+        {
+            "time": "23:00",
+            "task": "PowerOff"
+        }
+    ],
+    "Friday": [
+        {
+            "time": "06:00",
+            "task": "Morning Exercise"
+        },
+        {
+            "time": "07:00",
+            "task": "Breakfast"
+        },
+        {
+            "time": "08:00",
+            "task": "Computer Networks Revision"
+        },
+        {
+            "time": "09:00",
+            "task": "Computer Networks"
+        },
+        {
+            "time": "10:00",
+            "task": "Computer Networks"
+        },
+        {
+            "time": "11:00",
+            "task": "CDS Mathematics"
+        },
+        {
+            "time": "12:00",
+            "task": "CDS Mathematics"
+        },
+        {
+            "time": "13:00",
+            "task": "Lunch"
+        },
+        {
+            "time": "14:00",
+            "task": "Revision of all"
+        },
+        {
+            "time": "15:00",
+            "task": "Revision of all"
+        },
+        {
+            "time": "16:00",
+            "task": "Revision of all"
+        },
+        {
+            "time": "17:00",
+            "task": "Competitive Math"
+        },
+        {
+            "time": "18:00",
+            "task": "Competitive Math"
+        },
+        {
+            "time": "19:00",
+            "task": "Skill Building"
+        },
+        {
+            "time": "20:00",
+            "task": "Skill Building"
+        },
+        {
+            "time": "21:00",
+            "task": "LeetCode"
+        },
+        {
+            "time": "22:00",
+            "task": "LeetCode"
+        },
+        {
+            "time": "23:00",
+            "task": "PowerOff"
+        }
+    ],
+    "Saturday": [
+        {
+            "time": "06:00",
+            "task": "Morning Exercise"
+        },
+        {
+            "time": "07:00",
+            "task": "Breakfast"
+        },
+        {
+            "time": "08:00",
+            "task": "DSA intensive"
+        },
+        {
+            "time": "09:00",
+            "task": "DSA intensive"
+        },
+        {
+            "time": "10:00",
+            "task": "DSA intensive"
+        },
+        {
+            "time": "11:00",
+            "task": "CDS Mathematics"
+        },
+        {
+            "time": "12:00",
+            "task": "CDS Mathematics"
+        },
+        {
+            "time": "13:00",
+            "task": "Lunch"
+        },
+        {
+            "time": "14:00",
+            "task": "Advanced DSA"
+        },
+        {
+            "time": "15:00",
+            "task": "Advanced DSA"
+        },
+        {
+            "time": "16:00",
+            "task": "Advanced DSA"
+        },
+        {
+            "time": "17:00",
+            "task": "reading Books"
+        },
+        {
+            "time": "18:00",
+            "task": "Skill Building"
+        },
+        {
+            "time": "19:00",
+            "task": "Skill Building"
+        },
+        {
+            "time": "20:00",
+            "task": "Skill Building"
+        },
+        {
+            "time": "21:00",
+            "task": "LeetCode"
+        },
+        {
+            "time": "22:00",
+            "task": "LeetCode"
+        },
+        {
+            "time": "23:00",
+            "task": "PowerOff"
+        }
+    ],
+    "Sunday": [
+        {
+            "time": "06:00",
+            "task": "Morning Exercise"
+        },
+        {
+            "time": "07:00",
+            "task": "Breakfast"
+        },
+        {
+            "time": "08:00",
+            "task": "Android Development"
+        },
+        {
+            "time": "09:00",
+            "task": "Android Development"
+        },
+        {
+            "time": "10:00",
+            "task": "Competitive Math"
+        },
+        {
+            "time": "11:00",
+            "task": "CDS GK"
+        },
+        {
+            "time": "12:00",
+            "task": "CDS GK"
+        },
+        {
+            "time": "13:00",
+            "task": "Lunch"
+        },
+        {
+            "time": "14:00",
+            "task": "Advanced DSA"
+        },
+        {
+            "time": "15:00",
+            "task": "Advanced DSA"
+        },
+        {
+            "time": "16:00",
+            "task": "Advanced DSA"
+        },
+        {
+            "time": "17:00",
+            "task": "Reading books"
+        },
+        {
+            "time": "18:00",
+            "task": "Reading Books"
+        },
+        {
+            "time": "19:00",
+            "task": "Skill Building"
+        },
+        {
+            "time": "20:00",
+            "task": "Skill Building"
+        },
+        {
+            "time": "21:00",
+            "task": "LeetCode"
+        },
+        {
+            "time": "22:00",
+            "task": "LeetCode"
+        },
+        {
+            "time": "23:00",
+            "task": "PowerOff"
+        }
+    ]
+}
